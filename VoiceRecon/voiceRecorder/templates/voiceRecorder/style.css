@@ -1,0 +1,49 @@
+* {
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #8887b6;
+}
+h1 {
+  font-family: Roboto, sans-serif;
+  text-align: center;
+  font-size: 42px;
+}
+#container {
+  margin: 1000px;
+  display: block;
+  width: 80%;
+  margin: auto;
+}
+#button-container {
+  display: flex;
+  justify-content: space-between;
+}
+button {
+  background-color: #ffe87a;
+  cursor: pointer;
+  color: black;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  width: 33%;
+  font-size: 20px;
+  padding: 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 15px;
+}
+#download {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+button:hover {
+  background-color: #b3a45e;
+}
+audio {
+  margin: auto;
+  display: block;
+  padding: 15px;
+}

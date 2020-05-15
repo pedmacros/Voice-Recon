@@ -1,165 +1,161 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="WebRTC code samples" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"
+    />
+    <meta itemprop="description" content="Client-side WebRTC code samples" />
+    <meta itemprop="image" content="../../../images/webrtc-icon-192x192.png" />
+    <meta itemprop="name" content="WebRTC code samples" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta id="theme-color" name="theme-color" content="#ffffff" />
 
-    <meta charset="utf-8">
-    <meta name="description" content="WebRTC code samples">
-    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
-    <meta itemprop="description" content="Client-side WebRTC code samples">
-    <meta itemprop="image" content="../../../images/webrtc-icon-192x192.png">
-    <meta itemprop="name" content="WebRTC code samples">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta id="theme-color" name="theme-color" content="#ffffff">
-
-    <base target="_blank">
+    <base target="_blank" />
 
     <title>Voice Recognition app</title>
 
-    <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
 
-</head>
+  <body>
+    <div id="container">
+      <h1>Voice recorder for training</h1>
 
-<body>
-
-<div id="container">
-
-    <h1>Voice recorder for training</h1>
-
-    <audio id="gum" playsinline autoplay muted></audio>
-    <audio id="recorded" playsinline loop></audio>
-
-    <div>
-        <button id="record" >Start Recording</button>
+      <div id="button-container">
+        <button id="record">Start Recording</button>
         <button id="play" disabled>Play</button>
         <button id="download" disabled>Download</button>
+      </div>
+      <audio id="gum" playsinline autoplay muted></audio>
+      <audio id="recorded" playsinline loop></audio>
     </div>
 
+    <script>
+      const mediaSource = new MediaSource();
+      mediaSource.addEventListener("sourceopen", handleSourceOpen, false);
+      let mediaRecorder;
+      let recordedBlobs;
+      let sourceBuffer;
 
+      const recordedAudio = document.querySelector("audio#recorded");
+      const recordButton = document.querySelector("button#record");
 
+      recordButton.addEventListener("click", async () => {
+        if (recordButton.textContent === "Start Recording") {
+          await init({ audio: {} });
+          startRecording();
+        } else {
+          stopRecording();
+          recordButton.textContent = "Start Recording";
+          playButton.disabled = false;
+          downloadButton.disabled = false;
+        }
+      });
 
-</div>
+      const playButton = document.querySelector("button#play");
+      playButton.addEventListener("click", () => {
+        const superBuffer = new Blob(recordedBlobs, { type: "audio/wav" });
+        recordedAudio.src = null;
+        recordedAudio.srcObject = null;
+        recordedAudio.src = window.URL.createObjectURL(superBuffer);
+        recordedAudio.controls = true;
+        recordedAudio.play();
+      });
 
+      const downloadButton = document.querySelector("button#download");
+      downloadButton.addEventListener("click", () => {
+        const blob = new Blob(recordedBlobs, { type: "audio/wav" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "test.wav";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      });
 
-<script>const mediaSource = new MediaSource();
-mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
-let mediaRecorder;
-let recordedBlobs;
-let sourceBuffer;
-
-const recordedAudio = document.querySelector('audio#recorded');
-const recordButton = document.querySelector('button#record');
-
-recordButton.addEventListener('click', async () => {
-  if (recordButton.textContent === 'Start Recording') {
-      await init({audio:{}});
-      startRecording();
-  }else{
-      stopRecording();
-    recordButton.textContent = 'Start Recording';
-    playButton.disabled = false;
-    downloadButton.disabled = false;
-  }
-});
-
-const playButton = document.querySelector('button#play');
-playButton.addEventListener('click', () => {
-      const superBuffer = new Blob(recordedBlobs, {type: 'audio/wav'});
-  recordedAudio.src = null;
-  recordedAudio.srcObject = null;
-  recordedAudio.src = window.URL.createObjectURL(superBuffer);
-  recordedAudio.controls = true;
-  recordedAudio.play();
-});
-
-const downloadButton = document.querySelector('button#download');
-downloadButton.addEventListener('click', () => {
-  const blob = new Blob(recordedBlobs, {type: 'audio/wav'});
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  a.download = 'test.wav';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }, 100);
-});
-
-function handleSourceOpen(event) {
-  console.log('MediaSource opened');
-  sourceBuffer = mediaSource.addSourceBuffer('audio/wav');
-  console.log('Source buffer: ', sourceBuffer);
-}
-
-function handleDataAvailable(event) {
-  console.log('handleDataAvailable', event);
-  if (event.data && event.data.size > 0) {
-    recordedBlobs.push(event.data);
-  }
-}
-
-function startRecording() {
-  recordedBlobs = [];
-  let options = {mimeType: 'audio/wav'};
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.error(`${options.mimeType} is not Supported`);
-    options = {mimeType: 'audio/wav'};
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.error(`${options.mimeType} is not Supported`);
-      options = {mimeType: 'audio/wav'};
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.error(`${options.mimeType} is not Supported`);
-        options = {mimeType: ''};
+      function handleSourceOpen(event) {
+        console.log("MediaSource opened");
+        sourceBuffer = mediaSource.addSourceBuffer("audio/wav");
+        console.log("Source buffer: ", sourceBuffer);
       }
-    }
-  }
 
-  try {
-    mediaRecorder = new MediaRecorder(window.stream, options);
-  } catch (e) {
-    console.error('Exception while creating MediaRecorder:', e);
-    return;
-  }
+      function handleDataAvailable(event) {
+        console.log("handleDataAvailable", event);
+        if (event.data && event.data.size > 0) {
+          recordedBlobs.push(event.data);
+        }
+      }
 
-  console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  recordButton.textContent = 'Stop Recording';
-  playButton.disabled = true;
-  downloadButton.disabled = true;
-  mediaRecorder.onstop = (event) => {
-    console.log('Recorder stopped: ', event);
-    console.log('Recorded Blobs: ', recordedBlobs);
-  };
-  mediaRecorder.ondataavailable = handleDataAvailable;
-  mediaRecorder.start(10); // collect 10ms of data
-  console.log('MediaRecorder started', mediaRecorder);
-}
+      function startRecording() {
+        recordedBlobs = [];
+        let options = { mimeType: "audio/wav" };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not Supported`);
+          options = { mimeType: "audio/wav" };
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            console.error(`${options.mimeType} is not Supported`);
+            options = { mimeType: "audio/wav" };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              console.error(`${options.mimeType} is not Supported`);
+              options = { mimeType: "" };
+            }
+          }
+        }
 
-function stopRecording() {
-  mediaRecorder.stop();
-}
+        try {
+          mediaRecorder = new MediaRecorder(window.stream, options);
+        } catch (e) {
+          console.error("Exception while creating MediaRecorder:", e);
+          return;
+        }
 
-function handleSuccess(stream) {
-  recordButton.disabled = false;
-  console.log('getUserMedia() got stream:', stream);
-  window.stream = stream;
+        console.log(
+          "Created MediaRecorder",
+          mediaRecorder,
+          "with options",
+          options
+        );
+        recordButton.textContent = "Stop Recording";
+        playButton.disabled = true;
+        downloadButton.disabled = true;
+        mediaRecorder.onstop = (event) => {
+          console.log("Recorder stopped: ", event);
+          console.log("Recorded Blobs: ", recordedBlobs);
+        };
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        mediaRecorder.start(10); // collect 10ms of data
+        console.log("MediaRecorder started", mediaRecorder);
+      }
 
-  const gumAudio = document.querySelector('audio#gum');
-  gumAudio.srcObject = stream;
-}
+      function stopRecording() {
+        mediaRecorder.stop();
+      }
 
-async function init(constraints) {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    handleSuccess(stream);
-  } catch (e) {
-    console.error('navigator.getUserMedia error:', e);
-  }
-}
+      function handleSuccess(stream) {
+        recordButton.disabled = false;
+        console.log("getUserMedia() got stream:", stream);
+        window.stream = stream;
 
-</script>
+        const gumAudio = document.querySelector("audio#gum");
+        gumAudio.srcObject = stream;
+      }
 
-
-</body>
+      async function init(constraints) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          handleSuccess(stream);
+        } catch (e) {
+          console.error("navigator.getUserMedia error:", e);
+        }
+      }
+    </script>
+  </body>
 </html>
