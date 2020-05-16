@@ -44,13 +44,12 @@ def plotInFrequency(x,fs):
     X=np.abs(X)
     X=X[:N]
     f=np.arange(0,fs/2,fs/2/N)
-    print(np.shape(X))
-    print(np.shape(f))
     plt.figure()
     plt.plot(f,X)
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Magnitude')
     plt.grid(True)  
+    return(X)
     
 def LPFilter(fc, N, x, fs):
     fc=np.array(fc)
@@ -68,3 +67,16 @@ def LPFilter(fc, N, x, fs):
     y=y*xMax/yMax
     y=y.astype('int16')
     return(y)
+
+def Voice2Data(filename):
+    fs, x = readWav(filename) 
+    Y = LPFilter(4000, 2000, x, fs)
+    N=int(np.size(x,0)/2)
+    if np.size(x,0)==1:
+        X=np.fft.fft(x,axis=1)
+    else:
+        X=np.fft.fft(x,axis=0)
+    X=np.abs(X)
+    X=X[:N]
+    X = X[:,0]
+    return(X)
