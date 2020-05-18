@@ -33,6 +33,7 @@
     </div>
     <audio id="gum" playsinline autoplay muted></audio>
     <audio id="recorded" playsinline loop></audio>
+
 </div>
 
 <script>
@@ -83,18 +84,15 @@
             }
         };
         let fd = new FormData();
-        fd.append("audio_data", blob, "filename.wav");
-        fd.append('csrfmiddlewaretoken','{{ csrf_token}}')
+        fd.append("recording", blob, "filename.wav");
+        fd.append("author","Luis");
+        fd.append('csrfmiddlewaretoken','{{ csrf_token}}');
         req.open("POST", thanks, true);
         req.send(fd);
         submitButton.disabled = true;
 
 
     });
-
-    function reloadPage(){
-        location.reload();
-    }
 
     function handleSourceOpen(event) {
         console.log("MediaSource opened");
