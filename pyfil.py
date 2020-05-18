@@ -68,6 +68,7 @@ def LPFilter(fc, N, x, fs):
     y=y.astype('int16')
     return(y)
 
+#Use this to input a wav file and return an array with the processed data
 def Voice2Data(filename):
     fs, x = readWav(filename) 
     Y = LPFilter(4000, 2000, x, fs)

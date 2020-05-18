@@ -9,8 +9,13 @@ def index(request):
 
 
 def record(request):
-    name = request.POST['nameInput']
-    return HttpResponse('I think we recognise you, '+name)
+    return HttpResponse('I think we recognise you, ')
+
+
+def thanks(request):
+    audio_data = request.FILES['audio']
+    print("Received audio I think")
+    return HttpResponse("Thanks")
 
 
 def result(request):

@@ -1,161 +1,179 @@
+{%load static%}
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="description" content="WebRTC code samples" />
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="WebRTC code samples"/>
     <meta
-      name="viewport"
-      content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"
+            name="viewport"
+            content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"
     />
-    <meta itemprop="description" content="Client-side WebRTC code samples" />
-    <meta itemprop="image" content="../../../images/webrtc-icon-192x192.png" />
-    <meta itemprop="name" content="WebRTC code samples" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta id="theme-color" name="theme-color" content="#ffffff" />
-
-    <base target="_blank" />
+    <meta itemprop="description" content="Client-side WebRTC code samples"/>
+    <meta itemprop="image" content="../../../images/webrtc-icon-192x192.png"/>
+    <meta itemprop="name" content="WebRTC code samples"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta id="theme-color" name="theme-color" content="#ffffff"/>
+    <link rel="stylesheet" type="text/css" href="{%static 'voiceRecorder/style.css' %}">
+    <base target="_blank"/>
 
     <title>Voice Recognition app</title>
 
-    <link href="style.css" rel="stylesheet" type="text/css" />
-  </head>
+</head>
 
-  <body>
-    <div id="container">
-      <h1>Voice recorder for training</h1>
+<body>
+<div id="container">
+    <h1>Voice recorder for training</h1>
 
-      <div id="button-container">
+    <div id="button-container">
         <button id="record">Start Recording</button>
         <button id="play" disabled>Play</button>
         <button id="download" disabled>Download</button>
-      </div>
-      <audio id="gum" playsinline autoplay muted></audio>
-      <audio id="recorded" playsinline loop></audio>
     </div>
+    <audio id="gum" playsinline autoplay muted></audio>
+    <audio id="recorded" playsinline loop></audio>
+</div>
 
-    <script>
-      const mediaSource = new MediaSource();
-      mediaSource.addEventListener("sourceopen", handleSourceOpen, false);
-      let mediaRecorder;
-      let recordedBlobs;
-      let sourceBuffer;
+<script>
+    const mediaSource = new MediaSource();
+    mediaSource.addEventListener("sourceopen", handleSourceOpen, false);
+    let mediaRecorder;
+    let recordedBlobs;
+    let sourceBuffer;
 
-      const recordedAudio = document.querySelector("audio#recorded");
-      const recordButton = document.querySelector("button#record");
+    const recordedAudio = document.querySelector("audio#recorded");
+    const recordButton = document.querySelector("button#record");
 
-      recordButton.addEventListener("click", async () => {
+    recordButton.addEventListener("click", async () => {
         if (recordButton.textContent === "Start Recording") {
-          await init({ audio: {} });
-          startRecording();
+            await init({audio: {}});
+            startRecording();
         } else {
-          stopRecording();
-          recordButton.textContent = "Start Recording";
-          playButton.disabled = false;
-          downloadButton.disabled = false;
+            stopRecording();
+            recordButton.textContent = "Start Recording";
+            playButton.disabled = false;
+            downloadButton.disabled = false;
         }
-      });
+    });
 
-      const playButton = document.querySelector("button#play");
-      playButton.addEventListener("click", () => {
-        const superBuffer = new Blob(recordedBlobs, { type: "audio/wav" });
+    const playButton = document.querySelector("button#play");
+    playButton.addEventListener("click", () => {
+        const superBuffer = new Blob(recordedBlobs, {type: "audio/wav"});
         recordedAudio.src = null;
         recordedAudio.srcObject = null;
         recordedAudio.src = window.URL.createObjectURL(superBuffer);
         recordedAudio.controls = true;
         recordedAudio.play();
-      });
+    });
 
-      const downloadButton = document.querySelector("button#download");
-      downloadButton.addEventListener("click", () => {
-        const blob = new Blob(recordedBlobs, { type: "audio/wav" });
+    const downloadButton = document.querySelector("button#download");
+    downloadButton.addEventListener("click", () => {
+        const blob = new Blob(recordedBlobs, {type: "audio/wav"});
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
+        const thanks = 'http://localhost:8000/voiceRecorder/thanks/'
+        req.open('POST', thanks,)
+        var form = new FormData();
+        form.append('audio', blob);
+        $.ajax({
+            url: thanks,
+            type: 'POST',
+            data: form,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                console.log('response' + JSON.stringify(data));
+            },
+            error: function () {
+                // handle error case here
+            }
+        });
         a.style.display = "none";
         a.href = url;
         a.download = "test.wav";
         document.body.appendChild(a);
         a.click();
-        setTimeout(() => {
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        }, 100);
-      });
 
-      function handleSourceOpen(event) {
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    });
+
+    function handleSourceOpen(event) {
         console.log("MediaSource opened");
         sourceBuffer = mediaSource.addSourceBuffer("audio/wav");
         console.log("Source buffer: ", sourceBuffer);
-      }
+    }
 
-      function handleDataAvailable(event) {
+    function handleDataAvailable(event) {
         console.log("handleDataAvailable", event);
         if (event.data && event.data.size > 0) {
-          recordedBlobs.push(event.data);
+            recordedBlobs.push(event.data);
         }
-      }
+    }
 
-      function startRecording() {
+    function startRecording() {
         recordedBlobs = [];
-        let options = { mimeType: "audio/wav" };
+        let options = {mimeType: "audio/wav"};
         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          console.error(`${options.mimeType} is not Supported`);
-          options = { mimeType: "audio/wav" };
-          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
             console.error(`${options.mimeType} is not Supported`);
-            options = { mimeType: "audio/wav" };
+            options = {mimeType: "audio/wav"};
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-              console.error(`${options.mimeType} is not Supported`);
-              options = { mimeType: "" };
+                console.error(`${options.mimeType} is not Supported`);
+                options = {mimeType: "audio/wav"};
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    console.error(`${options.mimeType} is not Supported`);
+                    options = {mimeType: ""};
+                }
             }
-          }
         }
 
         try {
-          mediaRecorder = new MediaRecorder(window.stream, options);
+            mediaRecorder = new MediaRecorder(window.stream, options);
         } catch (e) {
-          console.error("Exception while creating MediaRecorder:", e);
-          return;
+            console.error("Exception while creating MediaRecorder:", e);
+            return;
         }
 
         console.log(
-          "Created MediaRecorder",
-          mediaRecorder,
-          "with options",
-          options
+            "Created MediaRecorder",
+            mediaRecorder,
+            "with options",
+            options
         );
         recordButton.textContent = "Stop Recording";
         playButton.disabled = true;
         downloadButton.disabled = true;
         mediaRecorder.onstop = (event) => {
-          console.log("Recorder stopped: ", event);
-          console.log("Recorded Blobs: ", recordedBlobs);
+            console.log("Recorder stopped: ", event);
+            console.log("Recorded Blobs: ", recordedBlobs);
         };
         mediaRecorder.ondataavailable = handleDataAvailable;
         mediaRecorder.start(10); // collect 10ms of data
         console.log("MediaRecorder started", mediaRecorder);
-      }
+    }
 
-      function stopRecording() {
+    function stopRecording() {
         mediaRecorder.stop();
-      }
+    }
 
-      function handleSuccess(stream) {
+    function handleSuccess(stream) {
         recordButton.disabled = false;
         console.log("getUserMedia() got stream:", stream);
         window.stream = stream;
 
         const gumAudio = document.querySelector("audio#gum");
         gumAudio.srcObject = stream;
-      }
+    }
 
-      async function init(constraints) {
+    async function init(constraints) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
-          handleSuccess(stream);
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            handleSuccess(stream);
         } catch (e) {
-          console.error("navigator.getUserMedia error:", e);
+            console.error("navigator.getUserMedia error:", e);
         }
-      }
-    </script>
-  </body>
+    }
+</script>
+</body>
 </html>
