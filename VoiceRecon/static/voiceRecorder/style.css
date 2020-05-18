@@ -42,6 +42,9 @@ button {
 button:hover {
   background-color: #b3a45e;
 }
+button:disabled{
+  background-color: #53405b;
+}
 audio {
   margin: auto;
   display: block;

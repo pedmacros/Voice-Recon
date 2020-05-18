@@ -27,7 +27,9 @@
     <div id="button-container">
         <button id="record">Start Recording</button>
         <button id="play" disabled>Play</button>
-        <button id="download" disabled>Download</button>
+        <button id="submit" disabled>Submit
+            {% csrf_token %}
+        </button>
     </div>
     <audio id="gum" playsinline autoplay muted></audio>
     <audio id="recorded" playsinline loop></audio>
@@ -51,7 +53,7 @@
             stopRecording();
             recordButton.textContent = "Start Recording";
             playButton.disabled = false;
-            downloadButton.disabled = false;
+            submitButton.disabled = false;
         }
     });
 
@@ -65,39 +67,34 @@
         recordedAudio.play();
     });
 
-    const downloadButton = document.querySelector("button#download");
-    downloadButton.addEventListener("click", () => {
+    const submitButton = document.querySelector("button#submit");
+    submitButton.addEventListener("click", () => {
         const blob = new Blob(recordedBlobs, {type: "audio/wav"});
-        const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         const thanks = 'http://localhost:8000/voiceRecorder/thanks/'
-        req.open('POST', thanks,)
-        var form = new FormData();
-        form.append('audio', blob);
-        $.ajax({
-            url: thanks,
-            type: 'POST',
-            data: form,
-            processData: false,
-            contentType: false,
-            success: function (data) {
-                console.log('response' + JSON.stringify(data));
-            },
-            error: function () {
-                // handle error case here
+        let req = new XMLHttpRequest();
+        var inputElem = document.createElement('input');
+        inputElem.type = 'hidden';
+        inputElem.name = 'csrfmiddlewaretoken';
+        inputElem.value = '{{ csrf_token }}';
+        req.onload = function (e) {
+            if (this.readyState === 4) {
+                console.log("Server returned: ", e.target.responseText);
             }
-        });
-        a.style.display = "none";
-        a.href = url;
-        a.download = "test.wav";
-        document.body.appendChild(a);
-        a.click();
+        };
+        let fd = new FormData();
+        fd.append("audio_data", blob, "filename.wav");
+        fd.append('csrfmiddlewaretoken','{{ csrf_token}}')
+        req.open("POST", thanks, true);
+        req.send(fd);
+        submitButton.disabled = true;
 
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 100);
+
     });
+
+    function reloadPage(){
+        location.reload();
+    }
 
     function handleSourceOpen(event) {
         console.log("MediaSource opened");
@@ -143,7 +140,7 @@
         );
         recordButton.textContent = "Stop Recording";
         playButton.disabled = true;
-        downloadButton.disabled = true;
+        submitButton.disabled = true;
         mediaRecorder.onstop = (event) => {
             console.log("Recorder stopped: ", event);
             console.log("Recorded Blobs: ", recordedBlobs);
@@ -175,5 +172,6 @@
         }
     }
 </script>
+{% csrf_token %}
 </body>
 </html>

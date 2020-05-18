@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
-
 # Create your views here.
 def index(request):
     return render(request, template_name='voiceRecorder/index.html')
@@ -13,7 +12,6 @@ def record(request):
 
 
 def thanks(request):
-    audio_data = request.FILES['audio']
     print("Received audio I think")
     return HttpResponse("Thanks")
 
