@@ -1,6 +1,7 @@
 * {
   padding: 0;
   box-sizing: border-box;
+  font-family: Roboto, sans-serif;
 }
 
 body {
@@ -17,10 +18,7 @@ h1 {
   width: 80%;
   margin: auto;
 }
-.button-container {
-  display: flex;
-  justify-content: space-between;
-}
+
 button {
   background-color: #ffe87a;
   cursor: pointer;
@@ -35,19 +33,48 @@ button {
   border: none;
   border-radius: 15px;
 }
-#download {
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
-}
+
 button:hover {
   background-color: #b3a45e;
 }
 button:disabled {
   background-color: #53405b;
 }
-audio {
-  margin: auto;
+form {
   display: block;
+  margin: auto;
+}
+
+form label {
+  display: block;
+  margin: auto;
+  margin-top: 15px;
+  text-align: center;
+  font-size: 24px;
+}
+form input {
+  display: block;
+  margin: auto;
+  margin-top: 15px;
+}
+
+#author,
+#submit {
+  background-color: #ffe87a;
+  border: none;
+  border-radius: 3px;
   padding: 15px;
+  font-size: 24px;
+  height: 7vh;
+}
+#submit {
+  cursor: pointer;
+  padding: none;
+  font-size: 20px;
+  vertical-align: center;
+  height: 8vh;
+}
+#audio {
+  border: none;
+  border-radius: 3px;
 }
