@@ -17,7 +17,7 @@ h1 {
   width: 80%;
   margin: auto;
 }
-#button-container {
+.button-container {
   display: flex;
   justify-content: space-between;
 }
@@ -30,7 +30,8 @@ button {
   width: 33%;
   font-size: 20px;
   padding: 15px;
-  margin: 5px;
+  margin: auto;
+  display: block;
   border: none;
   border-radius: 15px;
 }
@@ -42,7 +43,7 @@ button {
 button:hover {
   background-color: #b3a45e;
 }
-button:disabled{
+button:disabled {
   background-color: #53405b;
 }
 audio {
