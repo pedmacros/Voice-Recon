@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.http import HttpResponseRedirect
-from django.template import loader
 from .forms import RecordingForm
+from .models import Recording
+from . import pyfil
+from numpy import savetxt
 
 # Create your views here.
 def index(request):
@@ -16,15 +17,12 @@ def record(request):
 def thanks(request):
     print("Received audio I think")
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = RecordingForm(request.POST, request.FILES)
-        print(type(request.FILES['recording']))
-        data = request.FILES['recording']
-        print(data)
-        # check whether it's valid:
-        if form.is_valid():
-            print("It is valid bro")
-            print(form.cleaned_data['author'])
+        file = request.FILES['audio']
+        data = pyfil.Voice2Data(file)
+        print('type of data -> ', type(data))
+        author = request.POST['author']
+        print('author ->', author)
+        savetxt('data.csv', data, delimiter=',')
     return HttpResponse("Thanks")
 
 
