@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from .forms import RecordingForm
 from .models import Recording
 from . import pyfil
 from numpy import savetxt
+from .VoiceNetwork import trainNetwork
 
 
 # Create your views here.
@@ -11,8 +13,9 @@ def index(request):
     return render(request, template_name='voiceRecorder/index.html')
 
 
-def record(request):
-    return HttpResponse('I think we recognise you, ')
+def train(request):
+    trainNetwork()
+    return HttpResponse('Training triggered ')
 
 
 def thanks(request):
@@ -25,14 +28,14 @@ def thanks(request):
         author = author.strip()
         author = author.lower()
         print('author ->', author)
-        data.append(author)
         data = ''.join(str(e) + ',' for e in data)
+        data += author
         print(data)
         file = open('data.csv', 'a')
-        file.write(data+'\n')
+        file.write(data + '\n')
         file.close()
         # savetxt('data.csv', data, delimiter=',')
-    return HttpResponse("Thanks")
+    return HttpResponseRedirect('/voiceRecorder/')
 
 
 def result(request):

@@ -5,7 +5,7 @@ from . import views
 app_name = 'voiceRecorder'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('record/', views.record, name='record'),
+    path('train/', views.train, name='train'),
     path('result/', views.result, name='result'),
     path('thanks/', views.thanks, name='result'),
 ]
