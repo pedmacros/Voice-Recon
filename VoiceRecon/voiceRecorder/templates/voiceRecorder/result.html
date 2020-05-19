@@ -1,0 +1,37 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="WebRTC code samples" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"
+    />
+    <meta itemprop="description" content="Client-side WebRTC code samples" />
+    <meta itemprop="image" content="../../../images/webrtc-icon-192x192.png" />
+    <meta itemprop="name" content="WebRTC code samples" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta id="theme-color" name="theme-color" content="#ffffff" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{%static 'voiceRecorder/style.css' %}"
+    />
+    <base target="_blank" />
+
+    <title>Voice Recognition app</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <h1 id="result">
+        Hello Name!
+      </h1>
+
+      <button id="return">Return</button>
+    </div>
+
+    {% csrf_token %}
+  </body>
+</html>

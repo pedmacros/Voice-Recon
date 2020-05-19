@@ -29,4 +29,4 @@ def thanks(request):
 
 
 def result(request):
-    return HttpResponse("This is the result")
+    return render(request, template_name='voiceRecorder/result.html')
