@@ -89,4 +89,4 @@ def Voice2Data(filename):
     X = np.abs(X)
     X = X[:N]
     X = X[:, 0]
-    return (X)
+    return X
