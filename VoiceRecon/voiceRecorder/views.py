@@ -23,18 +23,16 @@ def thanks(request):
     if request.method == 'POST':
         file = request.FILES['audio']
         data = pyfil.Voice2Data(file).tolist()
-        print('type of data -> ', type(data))
         author = request.POST['author']
         author = author.strip()
         author = author.lower()
         print('author ->', author)
         data = ''.join(str(e) + ',' for e in data)
         data += author
-        print(data)
         file = open('data.csv', 'a')
         file.write(data + '\n')
         file.close()
-        # savetxt('data.csv', data, delimiter=',')
+        print('Successfully added record')
     return HttpResponseRedirect('/voiceRecorder/')
 
 
