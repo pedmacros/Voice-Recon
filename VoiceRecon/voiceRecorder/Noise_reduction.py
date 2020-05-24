@@ -1,6 +1,6 @@
-from VoiceRecon.voiceRecorder import pyfil as pf
+import pyfil as pf
+import numpy as np
+import scipy.signal as sp
 
-# Z = pf.Voice2Data('Alarm01.wav')
-filename = ('C:/Desarrollo/Voice-Recon/VoiceRecon/media/record.wav')
-X = pf.Voice2Data(filename)
-print(len(X))
+x = pf.Voice2Data('Alarm02.wav')
+print(np.shape(x))
