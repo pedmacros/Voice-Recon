@@ -1,11 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from .forms import RecordingForm
-from .models import Recording
 from . import pyfil
-from numpy import savetxt
-from .VoiceNetwork import trainNetwork
 
 
 # Create your views here.
@@ -14,7 +10,6 @@ def index(request):
 
 
 def train(request):
-    trainNetwork()
     return HttpResponse('Training triggered ')
 
 

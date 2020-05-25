@@ -59,7 +59,7 @@ form input {
 }
 
 #author,
-#submit {
+input[type=submit] {
   background-color: #ffe87a;
   border: none;
   border-radius: 3px;
@@ -67,7 +67,7 @@ form input {
   font-size: 24px;
   height: 7vh;
 }
-#submit {
+input[type=submit]{
   cursor: pointer;
   padding: none;
   font-size: 20px;

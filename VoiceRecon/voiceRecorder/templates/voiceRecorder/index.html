@@ -41,6 +41,20 @@
         <input type="submit" id="submit" value="submit" />
       </form>
     </div>
+    <h1>
+        Please, upload a .wav file to test the network
+      </h1>
+      <form
+        action="/voiceRecorder/results/"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        {% csrf_token %}
+        <label for="testerAudio">Select a file:</label>
+        <input type="file" id="testerAudio" name="testerAudio" />
+        <input type="submit" id="submitTest" value="submit" />
+      </form>
+    </div>
 
     <script>
       const mediaSource = new MediaSource();
