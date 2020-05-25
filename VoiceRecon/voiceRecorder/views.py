@@ -1,7 +1,9 @@
+import numpy
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from . import pyfil
+from .models import Author
 
 
 # Create your views here.
@@ -17,19 +19,36 @@ def thanks(request):
     print("Received audio I think")
     if request.method == 'POST':
         file = request.FILES['audio']
-        data = pyfil.Voice2Data(file).tolist()
+        data = pyfil.Voice2Data(file)
         author = request.POST['author']
-        author = author.strip()
-        author = author.lower()
-        print('author ->', author)
-        data = ''.join(str(e) + ',' for e in data)
-        data += author
-        file = open('data.csv', 'a')
-        file.write(data + '\n')
-        file.close()
+        # author = matchAuthor(author)
+        print('A ve que pasa ahora')
+        author = matchAuthor(author)
+        data = numpy.append(data, author)
+        print(data)
+        print(len(data))
+        data = data.reshape(1, data.shape[0])
+
+        f = open('datos.csv', 'ab')
+        numpy.savetxt(f, data, delimiter=',')
+        f.close()
         print('Successfully added record')
     return HttpResponseRedirect('/voiceRecorder/')
 
 
 def result(request):
     return render(request, template_name='voiceRecorder/result.html')
+
+
+def matchAuthor(author):
+    try:
+
+        currentAuthor = Author.objects.get(author=author)
+        print(author+' recognised')
+    except Author.DoesNotExist:
+        print("New author is here: "+author)
+        currentAuthor = Author(author=author)
+        currentAuthor.save()
+
+    result = currentAuthor.pk
+    return result

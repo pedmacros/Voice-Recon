@@ -2,6 +2,5 @@ from django.db import models
 
 
 # Create your models here.
-class Recording(models.Model):
+class Author(models.Model):
     author = models.CharField(max_length=120)
-    audio = models.CharField(max_length=200)
