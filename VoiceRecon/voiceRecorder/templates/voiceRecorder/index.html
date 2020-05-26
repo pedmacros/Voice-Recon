@@ -37,7 +37,7 @@
         <label for="author">Your name:</label>
         <input type="text" id="author" name="author" />
         <label for="audio">Select a file:</label>
-        <input type="file" id="audio" name="audio" />
+        <input type="file" id="audio" name="audio" multiple/>
         <input type="submit" id="submit" value="submit" />
       </form>
     </div>
@@ -48,145 +48,44 @@
         action="/voiceRecorder/results/"
         method="post"
         enctype="multipart/form-data"
+        id="file-catcher"
       >
         {% csrf_token %}
         <label for="testerAudio">Select a file:</label>
-        <input type="file" id="testerAudio" name="testerAudio" />
+        <input type="file" id="testerAudio" name="testerAudio" multiple/>
         <input type="submit" id="submitTest" value="submit" />
       </form>
     </div>
 
     <script>
-      const mediaSource = new MediaSource();
-      mediaSource.addEventListener("sourceopen", handleSourceOpen, false);
-      let mediaRecorder;
-      let recordedBlobs;
-      let sourceBuffer;
+      var fileInput = document.getElementByID('audio');
+      var fileList = [];
+      var fileCatcher = document.getElementById('file-catcher')
 
-      const recordedAudio = document.querySelector("audio#recorded");
-      const recordButton = document.querySelector("button#record");
-
-      recordButton.addEventListener("click", async () => {
-        if (recordButton.textContent === "Start Recording") {
-          await init({ audio: {} });
-          startRecording();
-        } else {
-          stopRecording();
-          recordButton.textContent = "Start Recording";
-          playButton.disabled = false;
-          submitButton.disabled = false;
+      fileInput.addEventListener('change',function (evnt){
+        fileList = [];
+        for (var i = 0; i<fileInput.files.length; i++){
+          fileList.push(fileInput.files[i]);
         }
       });
 
-      const playButton = document.querySelector("button#play");
-      playButton.addEventListener("click", () => {
-        const superBuffer = new Blob(recordedBlobs, { type: "audio/wav" });
-        recordedAudio.src = null;
-        recordedAudio.srcObject = null;
-        recordedAudio.src = window.URL.createObjectURL(superBuffer);
-        recordedAudio.controls = true;
-        recordedAudio.play();
+      fileCatcher.addEventListener('submit',function (evnt){
+        evnt.preventDefault();
+        fileList.forEach(function (file){
+          sendFile(file);
+        })
+      
+      sendFile = function (file){
+        var formData = new FormData();
+        var request = new XMLHttpRequest();
+
+        formData.set('file',file);
+        request.open("POST",'/voiceRecorder/thanks/');
+        request.send(formData);
+      }
       });
 
-      const submitButton = document.querySelector("button#submit");
-      submitButton.addEventListener("click", () => {
-        const blob = new Blob(recordedBlobs, { type: "audio/wav" });
-        const a = document.createElement("a");
-        const thanks = "http://localhost:8000/voiceRecorder/thanks/";
-        let req = new XMLHttpRequest();
-        var inputElem = document.createElement("input");
-        inputElem.type = "hidden";
-        inputElem.name = "csrfmiddlewaretoken";
-        inputElem.value = "{{ csrf_token }}";
-        req.onload = function (e) {
-          if (this.readyState === 4) {
-            console.log("Server returned: ", e.target.responseText);
-          }
-        };
-        let fd = new FormData();
-        fd.append("recording", blob, "filename.wav");
-        fd.append("author", "Luis");
-        fd.append("csrfmiddlewaretoken", "{{ csrf_token}}");
-        req.open("POST", thanks, true);
-        req.send(fd);
-        submitButton.disabled = true;
-      });
 
-      function handleSourceOpen(event) {
-        console.log("MediaSource opened");
-        sourceBuffer = mediaSource.addSourceBuffer("audio/wav");
-        console.log("Source buffer: ", sourceBuffer);
-      }
-
-      function handleDataAvailable(event) {
-        console.log("handleDataAvailable", event);
-        if (event.data && event.data.size > 0) {
-          recordedBlobs.push(event.data);
-        }
-      }
-
-      function startRecording() {
-        recordedBlobs = [];
-        let options = { mimeType: "audio/wav" };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          console.error(`${options.mimeType} is not Supported`);
-          options = { mimeType: "audio/wav" };
-          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            console.error(`${options.mimeType} is not Supported`);
-            options = { mimeType: "audio/wav" };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-              console.error(`${options.mimeType} is not Supported`);
-              options = { mimeType: "" };
-            }
-          }
-        }
-
-        try {
-          mediaRecorder = new MediaRecorder(window.stream, options);
-        } catch (e) {
-          console.error("Exception while creating MediaRecorder:", e);
-          return;
-        }
-
-        console.log(
-          "Created MediaRecorder",
-          mediaRecorder,
-          "with options",
-          options
-        );
-        recordButton.textContent = "Stop Recording";
-        playButton.disabled = true;
-        submitButton.disabled = true;
-        mediaRecorder.onstop = (event) => {
-          console.log("Recorder stopped: ", event);
-          console.log("Recorded Blobs: ", recordedBlobs);
-        };
-        mediaRecorder.ondataavailable = handleDataAvailable;
-        mediaRecorder.start(10); // collect 10ms of data
-        console.log("MediaRecorder started", mediaRecorder);
-      }
-
-      function stopRecording() {
-        mediaRecorder.stop();
-      }
-
-      function handleSuccess(stream) {
-        recordButton.disabled = false;
-        console.log("getUserMedia() got stream:", stream);
-        window.stream = stream;
-
-        const gumAudio = document.querySelector("audio#gum");
-        gumAudio.srcObject = stream;
-      }
-
-      async function init(constraints) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
-          handleSuccess(stream);
-        } catch (e) {
-          console.error("navigator.getUserMedia error:", e);
-        }
-      }
     </script>
     {% csrf_token %}
   </body>
