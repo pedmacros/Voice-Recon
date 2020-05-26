@@ -39,6 +39,6 @@ def resultHandler(file):
     data = pyfil.Voice2Data(file)
     data = data.reshape(1, data.shape[0])
 
-    f = open('guess.csv', 'ab')
+    f = open('guess.csv', 'w')
     np.savetxt(f, data, delimiter=',')
     f.close()
