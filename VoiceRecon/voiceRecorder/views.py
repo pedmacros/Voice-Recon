@@ -21,8 +21,6 @@ def thanks(request):
         file = request.FILES['audio']
         data = pyfil.Voice2Data(file)
         author = request.POST['author']
-        # author = matchAuthor(author)
-        print('A ve que pasa ahora')
         author = matchAuthor(author)
         data = numpy.append(data, author)
         print(data)
@@ -37,6 +35,15 @@ def thanks(request):
 
 
 def result(request):
+    if request.method == 'POST':
+        file = request.FILES['testerAudio']
+        data = pyfil.Voice2Data(file)
+        data = data.reshape(1, data.shape[0])
+
+        f = open('guess.csv', 'ab')
+        numpy.savetxt(f, data, delimiter=',')
+        f.close()
+        print('Successfully added record')
     return render(request, template_name='voiceRecorder/result.html')
 
 
