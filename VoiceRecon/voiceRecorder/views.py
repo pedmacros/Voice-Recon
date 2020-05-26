@@ -1,10 +1,7 @@
-import numpy
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from . import pyfil
-from .models import Author
-
+from . import handlers
 
 # Create your views here.
 def index(request):
@@ -16,46 +13,19 @@ def train(request):
 
 
 def thanks(request):
-    print("Received audio I think")
+    print("Received audio file")
     if request.method == 'POST':
-        file = request.FILES['audio']
-        data = pyfil.Voice2Data(file)
+        files = request.FILES.getlist('audio')
         author = request.POST['author']
-        author = matchAuthor(author)
-        data = numpy.append(data, author)
-        print(data)
-        print(len(data))
-        data = data.reshape(1, data.shape[0])
-
-        f = open('datos.csv', 'ab')
-        numpy.savetxt(f, data, delimiter=',')
-        f.close()
-        print('Successfully added record')
+        handlers.trainingHandler(files, author)
     return HttpResponseRedirect('/voiceRecorder/')
 
 
 def result(request):
     if request.method == 'POST':
         file = request.FILES['testerAudio']
-        data = pyfil.Voice2Data(file)
-        data = data.reshape(1, data.shape[0])
-
-        f = open('guess.csv', 'ab')
-        numpy.savetxt(f, data, delimiter=',')
-        f.close()
-        print('Successfully added record')
+        handlers.resultHandler(file)
     return render(request, template_name='voiceRecorder/result.html')
 
 
-def matchAuthor(author):
-    try:
 
-        currentAuthor = Author.objects.get(author=author)
-        print(author+' recognised')
-    except Author.DoesNotExist:
-        print("New author is here: "+author)
-        currentAuthor = Author(author=author)
-        currentAuthor.save()
-
-    result = currentAuthor.pk
-    return result
